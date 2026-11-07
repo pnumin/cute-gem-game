@@ -56,7 +56,7 @@
   <button id="hintBtn">💡 힌트</button>
   <button id="newBtn">🔄 새 게임</button>
 </div>
-<div class="help">같은 보석 3개 이상을 가로/세로로 맞추세요. 클릭 또는 드래그로 이웃한 보석과 자리를 바꿉니다.</div>
+<div class="help">같은 보석 3개 이상을 가로/세로로 맞추거나, 2×2 사각형으로 모으면(보너스 +50) 사라집니다. 클릭 또는 드래그로 이웃한 보석과 자리를 바꿉니다.</div>
 
 <script>
 const N = 8, TYPES = 6, MAX_MOVES = 30;
@@ -156,7 +156,8 @@ function newBoard() {
       let t;
       do { t = rnd(TYPES); } while (
         (c >= 2 && grid[r][c - 1].t === t && grid[r][c - 2].t === t) ||
-        (r >= 2 && grid[r - 1][c].t === t && grid[r - 2][c].t === t));
+        (r >= 2 && grid[r - 1][c].t === t && grid[r - 2][c].t === t) ||
+        (r >= 1 && c >= 1 && grid[r - 1][c - 1].t === t && grid[r - 1][c].t === t && grid[r][c - 1].t === t));
       grid[r].push(gem(t, r, c));
     }
   }
@@ -179,7 +180,21 @@ function findMatches() {
       else { if (run >= 3) for (let k = 1; k <= run; k++) set.add((r - k) * N + c); run = 1; }
     }
   }
+  // 2x2 사각형
+  for (const [r, c] of findSquares()) {
+    set.add(r * N + c); set.add(r * N + c + 1); set.add((r + 1) * N + c); set.add((r + 1) * N + c + 1);
+  }
   return set;
+}
+
+// 같은 보석 2x2 사각형의 왼쪽 위 좌표 목록
+function findSquares() {
+  const list = [];
+  for (let r = 0; r < N - 1; r++) for (let c = 0; c < N - 1; c++) {
+    const a = grid[r][c], b = grid[r][c + 1], d = grid[r + 1][c], e = grid[r + 1][c + 1];
+    if (a && b && d && e && a.t === b.t && a.t === d.t && a.t === e.t) list.push([r, c]);
+  }
+  return list;
 }
 
 function swapCells(r1, c1, r2, c2) {
@@ -256,10 +271,12 @@ async function resolve() {
     const m = findMatches();
     if (!m.size) break;
     combo++;
-    const pts = m.size * 10 * combo;
+    const squares = findSquares();
+    const pts = (m.size * 10 + squares.length * 50) * combo;
     score += pts;
     updateHud();
-    if (combo >= 2) showCombo(combo);
+    if (squares.length) showCombo('사각형 보너스!');
+    else if (combo >= 2) showCombo(combo);
     const gems = [...m].map(k => grid[Math.floor(k / N)][k % N]);
     let sx = 0, sy = 0;
     gems.forEach(g => { sx += g.x; sy += g.y; spawnParticles(g); });
