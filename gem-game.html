@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>보석 맞추기</title>
+<title>귀여운 보석 맞추기</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -37,10 +37,10 @@
 </style>
 </head>
 <body>
-<h1>💎 보석 맞추기</h1>
+<h1>🐥 귀여운 보석 맞추기</h1>
 <div class="hud">
   <div class="stat"><div class="label">점수</div><div class="value" id="score">0</div></div>
-  <div class="stat"><div class="label">남은 이동</div><div class="value" id="moves">30</div></div>
+  <div class="stat"><div class="label">남은 이동</div><div class="value" id="moves">10</div></div>
   <div class="stat"><div class="label">최고 점수</div><div class="value" id="best">0</div></div>
 </div>
 <div id="wrap">
@@ -59,27 +59,11 @@
 <div class="help">같은 보석 3개 이상을 가로/세로로 맞추거나, 2×2 사각형으로 모으면(보너스 +50) 사라집니다. 클릭 또는 드래그로 이웃한 보석과 자리를 바꿉니다.</div>
 
 <script>
-const N = 8, TYPES = 6, MAX_MOVES = 30;
+const N = 8, TYPES = 6, MAX_MOVES = 10;
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-const COLORS = ['#e0352b', '#4cbf22', '#3a6fe8', '#e070d8', '#f2b824', '#9b3fe0'];
-
-// 보석 모양 (단위 반지름 기준 꼭짓점)
-function poly(n, rot, sx = 1, sy = 1) {
-  const pts = [];
-  for (let i = 0; i < n; i++) {
-    const a = rot + i * Math.PI * 2 / n;
-    pts.push([Math.cos(a) * sx, Math.sin(a) * sy]);
-  }
-  return pts;
-}
-const SHAPES = [
-  poly(4, -Math.PI / 2, 0.95, 0.95),                                  // 빨강: 마름모
-  [[0, -0.95], [0.92, 0.75], [-0.92, 0.75]],                            // 초록: 삼각형
-  [[-0.5, -0.6], [0.5, -0.6], [0.95, -0.15], [0, 0.85], [-0.95, -0.15]], // 파랑: 다이아몬드 컷
-  poly(8, Math.PI / 8, 0.92, 0.92),                                    // 분홍: 팔각형
-  poly(6, 0, 0.92, 0.92),                                              // 노랑: 육각형
-  poly(12, 0, 0.88, 0.88),                                             // 보라: 원형 컷
-];
+// 귀여운 이모지 보석과 배경 색
+const EMOJIS = ['🐱', '🐶', '🐥', '🐸', '🐳', '🐼'];
+const COLORS = ['#ff8fab', '#ffa94d', '#ffd93d', '#69db7c', '#74c0fc', '#c69cff'];
 
 function shade(hex, f) {
   const n = parseInt(hex.slice(1), 16);
@@ -90,51 +74,26 @@ function shade(hex, f) {
 }
 
 function drawGem(t, cx, cy, R, glow) {
-  const pts = SHAPES[t], col = COLORS[t];
-  const outer = pts.map(([x, y]) => [cx + x * R, cy + y * R]);
-  const inner = pts.map(([x, y]) => [cx + x * R * 0.55, cy + y * R * 0.55 - R * 0.04]);
+  const col = COLORS[t];
   ctx.save();
-  if (glow) { ctx.shadowColor = '#fff'; ctx.shadowBlur = R * 0.6; }
-  // 외곽
+  if (glow) { ctx.shadowColor = '#fff'; ctx.shadowBlur = R * 0.8; }
+  // 말랑한 동그란 배경
   ctx.beginPath();
-  outer.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-  ctx.closePath();
-  ctx.fillStyle = shade(col, -0.35);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  // 베벨 면 (빛은 왼쪽 위에서)
-  for (let i = 0; i < outer.length; i++) {
-    const j = (i + 1) % outer.length;
-    const mx = (pts[i][0] + pts[j][0]) / 2, my = (pts[i][1] + pts[j][1]) / 2;
-    const len = Math.hypot(mx, my) || 1;
-    const light = (-mx * 0.6 - my * 0.8) / len; // -1..1
-    ctx.beginPath();
-    ctx.moveTo(...outer[i]); ctx.lineTo(...outer[j]); ctx.lineTo(...inner[j]); ctx.lineTo(...inner[i]);
-    ctx.closePath();
-    ctx.fillStyle = shade(col, light > 0 ? light * 0.45 : light * 0.45);
-    ctx.fill();
-  }
-  // 윗면
-  ctx.beginPath();
-  inner.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-  ctx.closePath();
-  const g = ctx.createLinearGradient(cx - R * 0.5, cy - R * 0.5, cx + R * 0.5, cy + R * 0.5);
-  g.addColorStop(0, shade(col, 0.35));
-  g.addColorStop(1, shade(col, -0.05));
+  ctx.arc(cx, cy, R * 1.05, 0, Math.PI * 2);
+  const g = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, R * 1.05);
+  g.addColorStop(0, shade(col, 0.7));
+  g.addColorStop(1, shade(col, 0.1));
   ctx.fillStyle = g;
   ctx.fill();
-  // 하이라이트
-  ctx.beginPath();
-  ctx.ellipse(cx - R * 0.2, cy - R * 0.25, R * 0.16, R * 0.08, -0.6, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.75)';
-  ctx.fill();
-  // 테두리
-  ctx.beginPath();
-  outer.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-  ctx.closePath();
-  ctx.strokeStyle = shade(col, -0.6);
-  ctx.lineWidth = Math.max(1, R * 0.05);
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = shade(col, -0.25);
+  ctx.lineWidth = Math.max(1, R * 0.07);
   ctx.stroke();
+  // 이모지
+  ctx.font = `${R * 1.3}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(EMOJIS[t], cx, cy + R * 0.08);
   ctx.restore();
 }
 
