@@ -168,7 +168,7 @@ src/
 | `ed08b5c` | 보석을 동물 이모지로 변경, 이동 10번으로 축소 |
 | `a98302b` | GitHub Pages용 이동(redirect) 페이지 추가 |
 | `be88a86` | 게임 파일을 `index.html`로 바꿔 사이트 주소에서 바로 실행 |
-| (예정) | React + Vite로 전환, GitHub Actions 배포 |
+| `683d63c` | React + Vite로 전환, GitHub Actions 배포 |
 
 ## 11. 향후 개선 아이디어
 
