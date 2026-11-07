@@ -1,0 +1,87 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 0%, #1d1d33, #050508 70%);
+  color: #eee;
+  font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+  user-select: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+}
+
+h1 {
+  margin: 4px 0 12px;
+  font-size: 28px;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hud { display: flex; gap: 10px; width: 100%; max-width: 560px; margin-bottom: 10px; }
+.stat { flex: 1; background: #15151f; border: 1px solid #2a2a3a; border-radius: 10px; padding: 8px; text-align: center; }
+.stat .label { font-size: 12px; color: #999; }
+.stat .value { font-size: 22px; font-weight: bold; }
+
+.board { position: relative; width: 100%; max-width: 560px; }
+.board canvas {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  touch-action: none;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(120, 100, 255, 0.25);
+}
+
+.buttons { display: flex; gap: 10px; margin-top: 12px; }
+button {
+  background: #2a2a40;
+  color: #eee;
+  border: 1px solid #44446a;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: inherit;
+}
+button:hover { background: #3a3a58; }
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 12px;
+}
+.overlay h2 { margin: 0; font-size: 34px; }
+.overlay p { margin: 0; font-size: 18px; }
+
+.banner {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  font-weight: 900;
+  white-space: nowrap;
+  color: #ffd93d;
+  text-shadow: 0 0 12px #ff8800;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.banner.show { opacity: 1; }
+
+.help { margin-top: 10px; max-width: 560px; font-size: 13px; color: #888; text-align: center; }
